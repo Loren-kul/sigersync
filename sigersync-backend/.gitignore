@@ -51,3 +51,5 @@ ios/
 *.key
 *.mobileprovision
 *.orig.*
+
+/generated/prisma
