@@ -11,6 +11,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@nestjs/cli": "^11.0.21",
     "@types/node": "^25.6.2",
     "ts-loader": "^9.5.7",
     "ts-node": "^10.9.2",
