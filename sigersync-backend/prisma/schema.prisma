@@ -4,10 +4,102 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id        String   @id @default(uuid()) // Menggunakan UUID agar lebih standar di PostgreSQL
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      UserRole @default(USER)
+  avatar    String?
+  bio       String?
+  createdAt DateTime @default(now()) @map("created_at") // Mapping nama kolom ke snake_case (standar SQL)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  reviews   Review[]
+  bookmarks Bookmark[]
+
+  @@map("users") // Mapping nama tabel ke huruf kecil plural
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+// --- Category Model ---
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?  @db.Text // Menggunakan tipe data Text untuk deskripsi panjang
+  icon        String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  destinations Destination[]
+
+  @@map("categories")
+}
+
+// --- Destination Model ---
+model Destination {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  location    String?
+  image       String?
+  rating      Decimal? @db.Decimal(3, 2) // Lebih akurat untuk rating daripada Float
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  categoryId  String      @map("category_id")
+  category    Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  reviews     Review[]
+  bookmarks   Bookmark[]
+
+  @@map("destinations")
+}
+
+// --- Review Model ---
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int      @db.SmallInt // Hemat penyimpanan karena rating hanya angka kecil (1-5)
+  comment   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId        String @map("user_id")
+  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  destinationId String @map("destination_id")
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+// --- Bookmark Model ---
+model Bookmark {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId        String @map("user_id")
+  user          User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  destinationId String @map("destination_id")
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, destinationId]) // Mencegah user bookmark tempat yang sama dua kali
+  @@map("bookmarks")
 }
