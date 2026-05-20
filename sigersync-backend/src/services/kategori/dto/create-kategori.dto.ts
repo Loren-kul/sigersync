@@ -5,13 +5,13 @@ export class CreateKategoriDTO {
   @IsNotEmpty()
   @MinLength(2)
   @MaxLength(100)
-  name: string;
+  name!: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
   @MaxLength(100)
-  slug: string;
+  slug!: string;
 
   @IsString()
   @IsOptional()
