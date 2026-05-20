@@ -91,6 +91,7 @@ describe('KategoriService', () => {
 
       expect(Array.isArray(result)).toBe(true); // Memastikan hasilnya berupa daftar/array.
     });
+    
 
     // Skenario: Error jika ternyata datanya kosong.
     it('should throw NotFoundException if no categories', async () => {
