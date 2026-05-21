@@ -1,19 +1,44 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
 
-@Injectable() // Menandai bahwa Layanan yang bisa digunakan oleh bagian aplikasi lain
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+type PrismaCategoryDelegate = {
+  findUnique: (args: unknown) => Promise<unknown>;
+  findMany: (args?: unknown) => Promise<unknown[]>;
+  create: (args: unknown) => Promise<unknown>;
+  update: (args: unknown) => Promise<unknown>;
+  delete: (args: unknown) => Promise<unknown>;
+};
+
+type PrismaClientLike = {
+  category: PrismaCategoryDelegate;
+  $connect?: () => Promise<void>;
+  $disconnect?: () => Promise<void>;
+} & Record<string, unknown>;
+
+@Injectable()
+export class PrismaService implements OnModuleInit, OnModuleDestroy {
+  declare category: PrismaCategoryDelegate;
+  private client?: PrismaClientLike;
+
   constructor() {
-    super(); // Memanggil constructor dari PrismaClient
-  }
-  
-  // Fungsi yang otomatis berjalan saat aplikasi Pertama kali menyala
-  async onModuleInit() {
-    await this.$connect(); // Perintah untuk membuka koneksi ke database
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { PrismaClient } = require("@prisma/client");
+      this.client = new PrismaClient();
+      Object.assign(this, this.client);
+    } catch {
+      this.client = undefined;
+    }
   }
 
-  // Fungsi yang otomatis berjalan saat aplikasi di matikan
+  async onModuleInit() {
+    if (this.client?.$connect) {
+      await this.client.$connect();
+    }
+  }
+
   async onModuleDestroy() {
-    await this.$disconnect(); // Perintah untuk memutus koneksi agar database tidak terbebani
+    if (this.client?.$disconnect) {
+      await this.client.$disconnect();
+    }
   }
 }
