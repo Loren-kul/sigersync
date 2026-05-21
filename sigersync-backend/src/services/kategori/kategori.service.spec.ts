@@ -6,8 +6,7 @@ import { PrismaService } from '../../database/prisma.service';
 // describe  mengelompokkan semua tes untuk KategoriService.
 describe('KategoriService', () => {
   let service: KategoriService;
-  let prisma: PrismaService;
-
+  
   // Membuat data Kategori "Palsu" untuk bahan percobaan.
   const mockCategory = {
     id: '1',
@@ -43,8 +42,7 @@ describe('KategoriService', () => {
       ],
     }).compile();
 
-    service = module.get<KategoriService>(KategoriService);
-    prisma = module.get<PrismaService>(PrismaService);
+    service = module.get<KategoriService>(KategoriService);    
   });
 
   // Membersihkan catatan memori setelah setiap tes selesai.
