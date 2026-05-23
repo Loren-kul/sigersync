@@ -1,12 +1,11 @@
 "use client"; 
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader } from '../ui/Card';
+import React, { useEffect, useState } from 'react';
+import { ApiService } from '../../lib/api-service';
+import { Category, CreateCategoryForm, UpdateCategoryForm } from '../../types';
 import { Button } from '../ui/Button';
 import { CategoryCard } from './CategoryCard';
 import { CategoryFormModal } from './CategoryFormModal';
-import { ApiService } from '../../lib/api-service';
-import { Category, CreateCategoryForm, UpdateCategoryForm } from '../../types';
 
 /**
  * Main Categories Management Page
