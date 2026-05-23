@@ -8,14 +8,14 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
-} from '@nestjs/common';
+} from "@nestjs/common";
 // Bagian di bawah ini WAJIB ada agar komputer tahu lokasi file-filenya
-import { KategoriService } from './kategori.service';
-import { CreateKategoriDTO } from './dto/create-kategori.dto';
-import { UpdateKategoriDTO } from './dto/update-kategori.dto';
-import { KategoriEntity } from './entities/kategori.entity';
+import { KategoriService } from "./kategori.service";
+import { CreateKategoriDTO } from "./dto/create-kategori.dto";
+import { UpdateKategoriDTO } from "./dto/update-kategori.dto";
+import { KategoriEntity } from "./entities/kategori.entity";
 
-@Controller('kategori')
+@Controller("api/categories")
 export class KategoriController {
   // Menghubungkan Controller dengan Service (Si pekerja di balik layar).
   constructor(private readonly kategoriService: KategoriService) {}
@@ -24,7 +24,7 @@ export class KategoriController {
   @Post()
   @HttpCode(HttpStatus.CREATED) // Memberi sinyal '201 Created' (Berhasil Dibuat).
   async create(
-    @Body() createKategoriDTO: CreateKategoriDTO
+    @Body() createKategoriDTO: CreateKategoriDTO,
   ): Promise<KategoriEntity> {
     return this.kategoriService.create(createKategoriDTO);
   }
@@ -37,33 +37,33 @@ export class KategoriController {
   }
 
   // GET + :id: Mencari satu kategori spesifik berdasarkan NOMOR ID-nya.
-  @Get(':id')
+  @Get(":id")
   @HttpCode(HttpStatus.OK)
-  async findById(@Param('id') id: string): Promise<KategoriEntity> {
+  async findById(@Param("id") id: string): Promise<KategoriEntity> {
     return this.kategoriService.findById(id);
   }
 
   // GET + slug: Mencari satu kategori berdasarkan SLUG (nama unik di URL).
-  @Get('slug/:slug')
+  @Get("slug/:slug")
   @HttpCode(HttpStatus.OK)
-  async findBySlug(@Param('slug') slug: string): Promise<KategoriEntity> {
+  async findBySlug(@Param("slug") slug: string): Promise<KategoriEntity> {
     return this.kategoriService.findBySlug(slug);
   }
 
   // PUT: Digunakan untuk MENGUBAH atau mengedit data kategori yang sudah ada.
-  @Put(':id')
+  @Put(":id")
   @HttpCode(HttpStatus.OK)
   async update(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body() updateKategoriDTO: UpdateKategoriDTO,
   ): Promise<KategoriEntity> {
     return this.kategoriService.update(id, updateKategoriDTO);
   }
 
   // DELETE: Digunakan untuk MENGHAPUS kategori.
-  @Delete(':id')
+  @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT) // Memberi sinyal '204 No Content' (Berhasil dihapus).
-  async delete(@Param('id') id: string): Promise<void> {
+  async delete(@Param("id") id: string): Promise<void> {
     return this.kategoriService.delete(id);
   }
 }
