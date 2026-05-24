@@ -1,25 +1,104 @@
-// API Base URL - bisa dari environment variable
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+"use client";
 
-// API Endpoints - centralized untuk mudah di-maintain
-export const API_ENDPOINTS = {
-  CATEGORIES: `${API_BASE_URL}/api/categories`,
-  DESTINATIONS: `${API_BASE_URL}/api/destinations`,
-  USERS: `${API_BASE_URL}/api/users`,
-  REVIEWS: `${API_BASE_URL}/api/reviews`,
-};
+import { API_ENDPOINTS, DEFAULT_FETCH_OPTIONS } from './api';
+// IMPORT SEMUA TIPE YANG DIBUTUHKAN
+import { 
+  Category, 
+  Destination, 
+  User, 
+  Review, 
+  CreateCategoryForm, 
+  UpdateCategoryForm,
+  CreateDestinationForm,
+  UpdateDestinationForm 
+} from '../types';
 
-// HTTP Methods constant
-export const HTTP_METHODS = {
-  GET: 'GET',
-  POST: 'POST',
-  PUT: 'PUT',
-  DELETE: 'DELETE',
-} as const;
+export class ApiService {
+  private static async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const config = {
+      ...DEFAULT_FETCH_OPTIONS,
+      ...options,
+    };
 
-// Default fetch options untuk semua requests
-export const DEFAULT_FETCH_OPTIONS = {
-  headers: {
-    'Content-Type': 'application/json',
-  },
-};
+    try {
+      const response = await fetch(endpoint, config);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * CATEGORIES API
+   */
+  static async getCategories(): Promise<Category[]> {
+    return this.request<Category[]>(API_ENDPOINTS.CATEGORIES);
+  }
+
+  static async createCategory(data: CreateCategoryForm): Promise<Category> {
+    return this.request<Category>(API_ENDPOINTS.CATEGORIES, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  static async updateCategory(id: string, data: UpdateCategoryForm): Promise<Category> {
+    return this.request<Category>(`${API_ENDPOINTS.CATEGORIES}/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  static async deleteCategory(id: string): Promise<void> {
+    return this.request<void>(`${API_ENDPOINTS.CATEGORIES}/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * DESTINATIONS API
+   */
+  static async getDestinations(params?: Record<string, string | number | boolean>): Promise<Destination[]> {
+    const queryString = params ? `?${new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)]))}` : '';
+    return this.request<Destination[]>(`${API_ENDPOINTS.DESTINATIONS}${queryString}`);
+  }
+
+  static async createDestination(data: CreateDestinationForm): Promise<Destination> {
+    return this.request<Destination>(API_ENDPOINTS.DESTINATIONS, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  static async updateDestination(id: string, data: UpdateDestinationForm): Promise<Destination> {
+    return this.request<Destination>(`${API_ENDPOINTS.DESTINATIONS}/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  static async deleteDestination(id: string): Promise<void> {
+    return this.request<void>(`${API_ENDPOINTS.DESTINATIONS}/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * USERS API
+   */
+  static async getUsers(): Promise<User[]> {
+    return this.request<User[]>(API_ENDPOINTS.USERS);
+  }
+
+  /**
+   * REVIEWS API
+   */
+  static async getReviews(): Promise<Review[]> {
+    return this.request<Review[]>(API_ENDPOINTS.REVIEWS);
+  }
+}

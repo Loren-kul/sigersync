@@ -1,5 +1,5 @@
-import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
-import { GatewayService } from './gateway.service';
+import { Controller, Get, HttpCode, HttpStatus } from "@nestjs/common";
+import { GatewayService } from "./gateway.service";
 
 @Controller()
 export class GatewayController {
@@ -11,13 +11,13 @@ export class GatewayController {
     return this.gatewayService.getHealth();
   }
 
-  @Get('services')
+  @Get("services")
   @HttpCode(HttpStatus.OK)
   getServices() {
     return this.gatewayService.getServices();
   }
 
-  @Get('health')
+  @Get("health")
   @HttpCode(HttpStatus.OK)
   health() {
     return this.gatewayService.getHealth();
