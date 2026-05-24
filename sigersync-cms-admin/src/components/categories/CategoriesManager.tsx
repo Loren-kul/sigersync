@@ -1,6 +1,6 @@
 "use client"; 
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { ApiService } from '../../lib/api-service';
 import { Category, CreateCategoryForm, UpdateCategoryForm } from '../../types';
 import { Button } from '../ui/Button';
@@ -19,15 +19,10 @@ export const CategoriesManager: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
-  // Load categories on mount
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
   /**
    * Fetch categories dari API
    */
-  const loadCategories = async () => {
+  const loadCategories = useCallback(async () => {
     try {
       setLoading(true);
       const response = await ApiService.getCategories();
@@ -38,7 +33,13 @@ export const CategoriesManager: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Load categories on mount
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadCategories();
+  }, [loadCategories]);
 
   /**
    * Create new category
