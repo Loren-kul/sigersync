@@ -1,6 +1,6 @@
 "use client";
 
-import { API_ENDPOINTS, DEFAULT_FETCH_OPTIONS } from './api';
+import { API_BASE_URL, API_ENDPOINTS, DEFAULT_FETCH_OPTIONS } from './api';
 // IMPORT SEMUA TIPE YANG DIBUTUHKAN
 import { 
   Category, 
@@ -25,7 +25,26 @@ export class ApiService {
 
     try {
       const response = await fetch(endpoint, config);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      if (!response.ok) {
+        console.error(`API Error: ${response.status} ${response.statusText}`);
+        console.error(`Endpoint: ${endpoint}`);
+        console.error(`API Base URL: ${API_BASE_URL}`);
+        
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch {
+          // Jika response bukan JSON, gunakan status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
       return await response.json();
     } catch (error) {
       console.error('API request failed:', error);
