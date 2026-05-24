@@ -1,13 +1,10 @@
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException } from "@nestjs/common";
 
 // Utility class untuk standarisasi pesan error saat kategori tidak ditemukan
 export class KategoriNotExistUtil {
-  
   // Keterangan error 404 khusus pencarian berdasarkan ID
   static throwNotFoundById(id: string): never {
-    throw new NotFoundException(
-      `Kategori dengan ID "${id}" tidak ditemukan`,
-    );
+    throw new NotFoundException(`Kategori dengan ID "${id}" tidak ditemukan`);
   }
 
   // Keterangan error 404 khusus pencarian berdasarkan Nama
@@ -26,8 +23,6 @@ export class KategoriNotExistUtil {
 
   // Keterangan error 404 jika hasil list/daftar kategori kosong
   static throwEmptyList(): never {
-    throw new NotFoundException(
-      'Tidak ada kategori yang tersedia',
-    );
+    throw new NotFoundException("Tidak ada kategori yang tersedia");
   }
 }

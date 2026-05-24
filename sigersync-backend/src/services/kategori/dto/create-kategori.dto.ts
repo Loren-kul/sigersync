@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+} from "class-validator";
 
 export class CreateKategoriDTO {
   @IsString()

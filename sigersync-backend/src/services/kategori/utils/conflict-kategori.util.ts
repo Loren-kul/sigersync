@@ -1,10 +1,8 @@
-import { ConflictException } from '@nestjs/common';
+import { ConflictException } from "@nestjs/common";
 
 export class KategoriConflictUtil {
   static throwNameExists(name: string): never {
-    throw new ConflictException(
-      `Kategori dengan nama "${name}" sudah ada`,
-    );
+    throw new ConflictException(`Kategori dengan nama "${name}" sudah ada`);
   }
 
   static throwSlugExists(slug: string): never {
@@ -14,8 +12,6 @@ export class KategoriConflictUtil {
   }
 
   static throwDuplicateFields(field: string): never {
-    throw new ConflictException(
-      `Duplikasi field "${field}" pada kategori`,
-    );
+    throw new ConflictException(`Duplikasi field "${field}" pada kategori`);
   }
 }
