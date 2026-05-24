@@ -1,19 +1,13 @@
 "use client"; 
 
 import React from 'react';
+import { Category } from '../../types';
 import { Card, CardContent, CardHeader } from '../ui/Card';
 import { Button } from '../ui/Button';
 
 interface CategoryCardProps {
-  category: {
-    id: string;
-    name: string;
-    slug: string;
-    description?: string;
-    icon?: string;
-    destinations?: any[];
-  };
-  onEdit: (category: any) => void;
+  category: Category;
+  onEdit: (category: Category) => void;
   onDelete: (id: string) => void;
 }
 
