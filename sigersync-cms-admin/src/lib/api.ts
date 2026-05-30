@@ -3,6 +3,8 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost
 
 // API Endpoints - centralized untuk mudah di-maintain
 export const API_ENDPOINTS = {
+  AUTH_LOGIN: `${API_BASE_URL}/auth/login`,
+  AUTH_REFRESH: `${API_BASE_URL}/auth/refresh`,
   CATEGORIES: `${API_BASE_URL}/api/categories`,
   DESTINATIONS: `${API_BASE_URL}/api/destinations`,
   USERS: `${API_BASE_URL}/api/users`,
