@@ -15,10 +15,16 @@ async function bootstrap() {
     }),
   );
 
-  // 3. Mengambil nomor pintu (Port) dari pengaturan .env.
+  // 3. Aktifkan CORS untuk CMS admin yang berjalan di port berbeda.
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    credentials: true,
+  });
+
+  // 4. Mengambil nomor pintu (Port) dari pengaturan .env.
   const port = process.env.PORT || 3000;
 
-  // 4. Mulai mendengarkan permintaan dari internet.
+  // 5. Mulai mendengarkan permintaan dari internet.
   await app.listen(port);
 
   // 5. Menampilkan informasi alamat API di terminal sebagai panduan buat pengembang.
