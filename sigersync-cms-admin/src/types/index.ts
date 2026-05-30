@@ -3,6 +3,35 @@
  * Semua interfaces di-define di satu tempat untuk consistency
  */
 
+// ============= AUTH TYPES =============
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: AuthUser;
+}
+
+export interface RefreshResponse {
+  accessToken: string;
+}
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface RefreshPayload {
+  refreshToken: string;
+}
+
 // ============= DOMAIN TYPES =============
 
 export interface Category {
