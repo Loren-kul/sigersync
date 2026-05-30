@@ -1,6 +1,8 @@
 "use client";
 
+import axios, { AxiosInstance } from 'axios';
 import { API_BASE_URL, API_ENDPOINTS, DEFAULT_FETCH_OPTIONS } from './api';
+import { tokenManager } from './token-manager';
 // IMPORT SEMUA TIPE YANG DIBUTUHKAN
 import { 
   Category, 
@@ -12,6 +14,78 @@ import {
   CreateDestinationForm,
   UpdateDestinationForm 
 } from '../types';
+import type { LoginPayload, LoginResponse, RefreshResponse } from '@/types/auth';
+
+// Create axios instance untuk auth (tanpa interceptor)
+const authApiClient: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Create axios instance untuk general API (dengan interceptor)
+const apiClient: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor - attach JWT token ke headers
+apiClient.interceptors.request.use(
+  (config) => {
+    const accessToken = tokenManager.getAccessToken();
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor - handle token refresh
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // If 401 and not already retrying
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = tokenManager.getRefreshToken();
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
+        const response = await authApiClient.post<RefreshResponse>(
+          '/auth/refresh',
+          { refreshToken }
+        );
+
+        const { accessToken } = response.data;
+        tokenManager.save(accessToken, refreshToken, tokenManager.getUser());
+
+        // Retry original request with new token
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed, clear tokens and redirect to login
+        tokenManager.clear();
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export class ApiService {
   private static async request<T>(
@@ -53,71 +127,77 @@ export class ApiService {
   }
 
   /**
+   * AUTH API
+   */
+  static async login(payload: LoginPayload): Promise<LoginResponse> {
+    const response = await authApiClient.post<LoginResponse>('/auth/login', payload);
+    return response.data;
+  }
+
+  static async refresh(refreshToken: string): Promise<RefreshResponse> {
+    const response = await authApiClient.post<RefreshResponse>('/auth/refresh', {
+      refreshToken,
+    });
+    return response.data;
+  }
+
+  /**
    * CATEGORIES API
    */
   static async getCategories(): Promise<Category[]> {
-    return this.request<Category[]>(API_ENDPOINTS.CATEGORIES);
+    const response = await apiClient.get<Category[]>(API_ENDPOINTS.CATEGORIES);
+    return response.data;
   }
 
   static async createCategory(data: CreateCategoryForm): Promise<Category> {
-    return this.request<Category>(API_ENDPOINTS.CATEGORIES, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    const response = await apiClient.post<Category>(API_ENDPOINTS.CATEGORIES, data);
+    return response.data;
   }
 
   static async updateCategory(id: string, data: UpdateCategoryForm): Promise<Category> {
-    return this.request<Category>(`${API_ENDPOINTS.CATEGORIES}/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+    const response = await apiClient.put<Category>(`${API_ENDPOINTS.CATEGORIES}/${id}`, data);
+    return response.data;
   }
 
   static async deleteCategory(id: string): Promise<void> {
-    return this.request<void>(`${API_ENDPOINTS.CATEGORIES}/${id}`, {
-      method: 'DELETE',
-    });
+    await apiClient.delete(`${API_ENDPOINTS.CATEGORIES}/${id}`);
   }
 
   /**
    * DESTINATIONS API
    */
   static async getDestinations(params?: Record<string, string | number | boolean>): Promise<Destination[]> {
-    const queryString = params ? `?${new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)]))}` : '';
-    return this.request<Destination[]>(`${API_ENDPOINTS.DESTINATIONS}${queryString}`);
+    const response = await apiClient.get<Destination[]>(API_ENDPOINTS.DESTINATIONS, { params });
+    return response.data;
   }
 
   static async createDestination(data: CreateDestinationForm): Promise<Destination> {
-    return this.request<Destination>(API_ENDPOINTS.DESTINATIONS, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    const response = await apiClient.post<Destination>(API_ENDPOINTS.DESTINATIONS, data);
+    return response.data;
   }
 
   static async updateDestination(id: string, data: UpdateDestinationForm): Promise<Destination> {
-    return this.request<Destination>(`${API_ENDPOINTS.DESTINATIONS}/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+    const response = await apiClient.put<Destination>(`${API_ENDPOINTS.DESTINATIONS}/${id}`, data);
+    return response.data;
   }
 
   static async deleteDestination(id: string): Promise<void> {
-    return this.request<void>(`${API_ENDPOINTS.DESTINATIONS}/${id}`, {
-      method: 'DELETE',
-    });
+    await apiClient.delete(`${API_ENDPOINTS.DESTINATIONS}/${id}`);
   }
 
   /**
    * USERS API
    */
   static async getUsers(): Promise<User[]> {
-    return this.request<User[]>(API_ENDPOINTS.USERS);
+    const response = await apiClient.get<User[]>(API_ENDPOINTS.USERS);
+    return response.data;
   }
 
   /**
    * REVIEWS API
    */
   static async getReviews(): Promise<Review[]> {
-    return this.request<Review[]>(API_ENDPOINTS.REVIEWS);
+    const response = await apiClient.get<Review[]>(API_ENDPOINTS.REVIEWS);
+    return response.data;
   }
 }
